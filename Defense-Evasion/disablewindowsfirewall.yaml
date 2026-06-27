@@ -1,0 +1,47 @@
+title: Windows Firewall Disabled via Netsh
+id: 76286044-fa91-48bc-b608-487f282232ec
+status: stable
+description: |
+    Adversaries may disable or modify host-based or network firewalls to impair defensive mechanisms and enable further action.
+references:
+    - https://attack.mitre.org/techniques/T1686/
+    - https://learn.microsoft.com/windows-server/administration/windows-commands/netsh
+author: Tobias Castleberry
+date: 2026-06-9
+modified: 2026-06-9
+tags:
+    - attack.t1686
+    - attack.defense_evasion
+
+
+logsource:
+    category: process_creation
+    product: windows
+    service: sysmon
+
+
+detection:
+    selection_img:
+        Image|endswith:
+        - '\netsh.exe'
+
+    selection_cmd:
+        CommandLine|contains|all:
+        - 'netsh'
+        - 'advfirewall'
+        - 'set'
+        - 'current'
+        - 'profile'
+        - 'state'
+        - 'off'
+
+
+    condition: selection_img and selection_cmd
+
+
+falsepositives:
+    - network troubleshooting
+    - Administrator intentionally disabling the firewall for maintenance
+    - Authorized Pentesting
+
+level: Medium
