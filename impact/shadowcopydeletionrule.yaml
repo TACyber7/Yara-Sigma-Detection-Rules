@@ -1,0 +1,38 @@
+title: Shadow File Deletion via Vssadmin
+id: c8893058-17e8-4fb1-80d7-da2c64c83469
+status: experimental  
+description: |
+    Adversaries may delete or remove built-in data and turn off services designed to aid in the recovery of a corrupted system to prevent recovery. This may deny access to available backups and recovery options.
+references:
+    - https://attack.mitre.org/tactics/TA0040/
+author: Tobias Castleberry
+date: 2026-06-6  
+tags:
+    - attack.TA0040  
+    - attack.T1490  
+
+logsource:
+    category: process_creation
+    product: windows 
+    service: sysmon
+
+# Detection Section - The core detection logic
+detection:
+    selection_parent: 
+        Image|endswith: 
+        - '\vssadmin.exe'
+        
+    
+    selection_cmds:  
+        CommandLine|contains|all:
+        - 'shadows'
+        - 'delete'
+        - '/all'
+    
+    condition: selection_parent and selection_cmds
+
+falsepositives:  # Known false positive scenarios
+    - pentesting
+    - Monthly maintenance
+
+level: High
